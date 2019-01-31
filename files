@@ -1,0 +1,126 @@
+#include "stdafx.h"
+#include <conio.h> 
+#include "math.h" 
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+
+using namespace std;
+// Задача Коши формулируется для u(1) = 1; x на отрезке [1,3]. F - правая часть уравнения.
+double F(double x, double u)
+{ 
+	return 2 * ( x*x*x*x + u )/x;
+}
+// Точное решение.
+double F1(double x)
+{
+	return x*x*x*x;
+}
+// Класс методов решения дифференциальных уравнений.
+class ODE
+{
+	public:
+	double Euler_Simple(double a, double b, int n);
+	double Euler_Modified(double a, double b, int n);
+	double Euler_Advanced(double a, double b, int n);
+	double Runge_Kutta_4order(double a, double b, int n);
+};
+// Метод Эйлера.
+double ODE::Euler_Simple(double a, double b, int n)
+{
+	ofstream fout;
+	// Создание файла записи вычислений.
+	fout.open("C:/Users/Костян/Desktop/lab8_Euler_simple.txt");
+	fout << "Step \tCalculated \tPrecise \tError" << endl;
+	// Входные данные.
+	double u_0 = 1, u_n;
+	double h = (b - a) / n;
+	// Метод Эйлера.
+	for (int i = 0; i <= n; i++)
+	{
+		u_n = u_0 + h * F(a + i * h, u_0);
+		fout << a + i * h <<"\t"<< u_n << "\t\t" << F1(a + (i + 1) * h) <<"\t\t"<< u_n - F1(a + (i + 1) * h) << endl;
+		u_0 = u_n;
+	}
+	fout.close();
+	return 0;
+}
+
+// Модифицированный метод Эйлера.
+double ODE::Euler_Modified(double a, double b, int n)
+{
+	ofstream fout;
+	// Создание файла записи вычислений.
+	fout.open("C:/Users/Костян/Desktop/lab8_Euler_Modified.txt");
+	fout << "Step \tCalculated \tPrecise \tError" << endl;
+	// Входные данные.
+	double u_0 = 1, u_n;
+	double h = (b - a) / n;
+	// Алгоритм модифицированного метода Эйлера.
+	for (int i = 0; i <= n; i++)
+	{
+		u_n = u_0 + (h / 2)* (F(a + i * h, u_0)+F(a + (i+1) * h, u_0 + h*F(a + i * h, u_0)));
+		fout << a + i * h <<"\t"<< u_n << "\t\t" << F1(a + (i + 1) * h) << "\t\t" << u_n - F1(a + (i + 1) * h) << endl;
+		u_0 = u_n;
+	}
+	fout.close();
+	return 0;
+}
+
+// Усовершенствованный метод Эйлера.
+double ODE::Euler_Advanced(double a, double b, int n)
+{
+	ofstream fout;
+	// Создание файла записи вычислений.
+	fout.open("C:/Users/Костян/Desktop/lab8_Euler_Advanced.txt");
+	fout << "Step \tCalculated \tPrecise \tError" << endl;
+	// Входные данные.
+	double u_0 = 1, u_n;
+	double h = (b - a) / n;
+	// Алгоритм усовершенствованного метода Эйлера.
+	for (int i = 0; i <= n; i++)
+	{
+	u_n = u_0 + h * (F(a + i * h + h/2, u_0 + (h/2) * F(a + i * h, u_0)));
+	fout << a + i * h <<"\t"<< u_n << "\t\t" << F1(a + (i + 1) * h) << "\t\t" << u_n - F1(a + (i + 1) * h) << endl;
+	u_0 = u_n;
+	}
+	fout.close();
+	return 0;
+}
+
+// Метод Рунге-Кутта 4-ого порядка.
+double ODE::Runge_Kutta_4order(double a, double b, int n)
+{
+	ofstream fout;
+	// Создание файла записи вычислений.
+	fout.open("C:/Users/Костян/Desktop/lab8_Runge_Kutta_4order.txt");
+	fout << "Step \tCalculated \tPrecise \tError" << endl;
+	// Входные данные.
+	double u_0 = 1, u_n;
+	double h = (b - a) / n;
+	double k_0, k_1, k_2, k_3;
+	// Алгоритм Рунге - Кутта 4-ого порядка.
+	for (int i = 0; i <= n; i++)
+	{
+		k_0 = F(a + i * h, u_0);
+		k_1 = F(a + i * h + h / 2, u_0 + h * k_0/2);
+		k_2 = F(a + i * h + h / 2, u_0 + h * k_1 / 2);
+		k_3 = F(a + (i + 1) * h, u_0 + h * k_2);
+
+		u_n = u_0 + (h / 6)* (k_0 + 2 * k_1 + 2 * k_2 + k_3);
+		fout << a + i * h <<"\t"<< u_n << "\t\t" << F1(a + (i + 1) * h) << "\t\t" << u_n - F1(a + (i + 1) * h) << endl;
+		u_0 = u_n;
+	}
+	fout.close();
+	return 0;
+}
+
+int main()
+{
+	ODE calc;
+	calc.Euler_Simple(1,3,100);
+	calc.Euler_Modified(1, 3, 100);
+	calc.Euler_Advanced(1, 3, 100);
+	calc.Runge_Kutta_4order(1, 3, 100);
+	return 0;
+}
